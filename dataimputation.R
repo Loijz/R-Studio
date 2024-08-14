@@ -26,10 +26,37 @@ df_lr <- petrol %>%
   mice(method = "norm.predict") %>%
   complete()
 
+#same result of regression imputation using only standard packages
+# Fit the linear regression model
+model <- lm(gas_consumed ~ distance, data = petrol)
+# Predict missing values
+predicted_values <- predict(model, newdata = petrol[is.na(petrol$gas_consumed), ])
+# Impute missing values with the predicted values
+petrol$gas_consumed[is.na(petrol$gas_consumed)] <- predicted_values
+# View the imputed dataset
+head(petrol)
+
+
 #random forest imputation
 df_rf <- petrol %>%
   mice(method = "rf", m = 20) %>%
   complete()
+
+#random forest imputation with standard R-packages
+# Install and load randomForest package
+install.packages("randomForest")
+library(randomForest)
+# Fit the random forest model
+model_rf <- randomForest(gas_consumed ~ distance, data = petrol, na.action = na.omit)
+# Predict missing values using the fitted random forest model
+predicted_rf <- predict(model_rf, newdata = petrol[is.na(petrol$gas_consumed), ])
+# Impute missing values with the predicted values from the random forest model
+petrol$gas_consumed[is.na(petrol$gas_consumed)] <- predicted_rf
+# View the imputed dataset
+head(petrol)
+
+
+
 
 #stochastic regression imputation
 df_sr <- petrol %>%
